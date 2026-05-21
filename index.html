@@ -74,6 +74,7 @@
   <div class="teaser">
     <img src="assets/teaser1_intro.png" alt="Comparison between existing AR post-training (frozen decoder) and the RankE framework (co-evolved decoder)">
     <div class="teaser-caption">
+    <div class="teaser-caption" style="text-align: left;"></div>
       <b>Existing AR post-training</b> freezes the VQ decoder and optimizes only the AR policy with T2I rewards — inducing
       <em>Latent Covariate Shift</em>. <b>RankE</b> co-evolves both modules with complementary T2I and pixel rewards,
       closing the shift and breaking the fidelity–alignment trade-off.
@@ -90,7 +91,7 @@
       <p>
         Discrete autoregressive (AR) text-to-image (T2I) models pair a VQ tokenizer with an AR policy, and current
         post-training pipelines optimize <em>only</em> the policy while keeping the VQ decoder frozen. We show that this
-        policy-only optimization induces <strong>Latent Covariate Shift</strong>: as the policy evolves under reward
+        policy-only optimization induces <em>Latent Covariate Shift</em>: as the policy evolves under reward
         pressure, the token distribution diverges from the ground-truth distribution on which the decoder was trained,
         so reward scores improve while decoded image quality degrades.
       </p>
@@ -128,10 +129,10 @@
       <div class="figure">
         <img src="assets/combined_bar_pareto.png" alt="Latent Covariate Shift quantification and CLIP-FID Pareto front">
         <div class="cap">
-          <b>Left:</b> KL divergence between each model's token distribution and the ground-truth VQ token distribution.
-          Standard RL increases the divergence by ~21% over SFT, whereas RankE keeps it near the SFT level via decoder
+          <b>Left:</b> KL divergence between token distribution and the ground-truth VQ token distribution.
+          Standard RL increases the divergence over SFT, whereas RankE keeps it near the SFT level via decoder
           co-evolution. <b>Right:</b> Standard RL yields small CLIP improvements with non-improving FID; RankE attains a
-          true Pareto improvement, increasing CLIP <em>while</em> decreasing FID.
+          Pareto improvement, increasing CLIP <em>while</em> decreasing FID.
         </div>
       </div>
 
@@ -392,7 +393,7 @@
         <button class="copy-btn" onclick="copyBib(this)">Copy</button>
 <pre id="bib-text">@article{Jian2026RankE,
   title={RankE: End-to-End Post-Training for Discrete Text-to-Image Generation with Decoder Co-Evolution},
-  author={Jian, Siyong and Li, Siyuan Glen and Zhang, Luyuan and Wang, Zedong and Jin, Xin and Li, Ying and Tan, Cheng and Wang, Huan},
+  author={Jian, Siyong and Li, Siyuan and Zhang, Luyuan and Wang, Zedong and Jin, Xin and Li, Ying and Tan, Cheng and Wang, Huan},
   journal={arXiv preprint arXiv:2605.21195},
   year={2026}
 }</pre>
