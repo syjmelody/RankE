@@ -1,255 +1,426 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RankE: End-to-End Discrete Text-to-Image Post-Training via Rank-Consistent Alignment</title>
-    <meta name="description" content="RankE: End-to-End Discrete Text-to-Image Post-Training via Rank-Consistent Alignment">
-    <meta property="og:description" content="RankE: End-to-End Discrete Text-to-Image Post-Training via Rank-Consistent Alignment">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="RankE: End-to-End Discrete Text-to-Image Post-Training via Rank-Consistent Alignment">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: "Titillium Web", "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
-            font-weight: 300;
-            font-size: 17px;
-            margin-left: auto;
-            margin-right: auto;
-            max-width: 800px;
-        }
-        @media screen and (min-width: 800px) {
-            body {
-                width: 800px;
-            }
-        }
-        h1 {
-            font-weight: 300;
-            line-height: 1.15em;
-            text-align: center;
-            font-size: 40px;
-            font-weight: 500;
-        }
-        h2 {
-            font-size: 1.75em;
-            font-weight: 400;
-            margin: 16px 0 4px;
-            text-align: left;
-        }
-        h3 {
-            font-weight: 600;
-            margin: 16px 0 4px;
-            text-align: left;
-        }
-        a:link, a:visited {
-            color: #306fba;
-            text-decoration: none;
-        }
-        a:hover {
-            color: #1f4b7a;
-        }
-        .paper-title {
-            padding: 1px 0;
-        }
-        section {
-            margin: 32px 0;
-            text-align: justify;
-            clear: both;
-        }
-        .author-row-new {
-            text-align: center;
-            font-size: 26px;
-        }
-        .author-row-new a {
-            display: inline-block;
-            font-size: 20px;
-            padding: 4px;
-        }
-        .author-row-new sup {
-            color: #313436;
-            font-size: 12px;
-        }
-        .affiliations-new {
-            font-size: 18px;
-            text-align: center;
-            width: 100%;
-            margin: 0 auto 20px;
-        }
-        .row {
-            margin: 16px 0;
-        }
-        .row::after {
-            content: "";
-            clear: both;
-            display: table;
-        }
-        hr {
-            height: 1px;
-            border: 0;
-            border-top: 1px solid #ddd;
-            margin: 0;
-        }
-        .material-icons {
-            vertical-align: -6px;
-        }
-        p {
-            line-height: 1.25em;
-        }
-        .figure img {
-            width: 100%;
-            display: block;
-            margin: auto;
-        }
-        #bibtex pre {
-            font-size: 14px;
-            background-color: #eee;
-            padding: 16px;
-            border-radius: 3px;
-            overflow-x: auto;
-        }
-        .paper-btn:hover, .github-btn:hover {
-            color: #1f4b7a;
-            transform: translateY(-2px);
-        }
-        .paper-btn-parent {
-            display: flex;
-            justify-content: center;
-            margin: 16px 0;
-            gap: 25px;
-            font-size: 20px;
-        }
-        .container {
-            margin-left: auto;
-            margin-right: auto;
-            padding-left: 16px;
-            padding-right: 16px;
-        }
-        blockquote {
-            background-color: rgba(48, 111, 186, .1);
-            padding: 1px 15px;
-            margin: 15px 0;
-            border-radius: 10px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RankE: End-to-End Post-Training for Discrete Text-to-Image Generation with Decoder Co-Evolution</title>
+  <meta name="description" content="RankE is the first end-to-end post-training framework for discrete autoregressive text-to-image models. By co-evolving the AR policy with the VQ decoder, RankE absorbs Latent Covariate Shift and simultaneously improves fidelity and alignment.">
+  <meta property="og:title" content="RankE: End-to-End Post-Training for Discrete T2I via Decoder Co-Evolution">
+  <meta property="og:description" content="The first end-to-end post-training framework for discrete autoregressive T2I models — absorbs Latent Covariate Shift via decoder co-evolution.">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&display=swap" rel="stylesheet">
+
+  <!-- MathJax -->
+  <script>
+    window.MathJax = {
+      tex: {inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']]},
+      svg: {fontCache: 'global'}
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-    <div class="container">
-        <div class="paper-title">
-            <h1>
-                <font color="#306fba">RankE</font>: End-to-End Discrete Text-to-Image Post-Training via Rank-Consistent Alignment [cite: 1]
-            </h1>
-        </div>
 
-        <div id="authors">
-            <div class="author-row-new">
-                <a href="#">Siyong Jian</a><sup>1*</sup>,
-                <a href="#">Siyuan Li</a><sup>1,2*</sup>,
-                <a href="#">Luyuan Zhang</a><sup>3*</sup>,
-                <a href="#">Zedong Wang</a><sup>4</sup>,<br>
-                <a href="#">Xin Jin</a><sup>1</sup>,
-                <a href="#">Ying Li</a><sup>1</sup>,
-                <a href="#">Cheng Tan</a><sup>5†</sup>,
-                <a href="#">Huan Wang</a><sup>1†</sup> [cite: 2]
-            </div>
+  <!-- =================== HERO =================== -->
+  <header class="hero">
+    <h1>
+      <span class="title-accent">RankE</span>: End-to-End Post-Training for Discrete<br>Text-to-Image 
+      Generation with Decoder Co-Evolution
+    </h1>
 
-            <div class="affiliations-new">
-                <span><sup>1</sup>Westlake University</span>&nbsp;&nbsp;
-                <span><sup>2</sup>Zhejiang University</span>&nbsp;&nbsp;
-                <span><sup>3</sup>Tsinghua University</span><br>
-                <span><sup>4</sup>Hong Kong University of Science and Technology</span>&nbsp;&nbsp;
-                <span><sup>5</sup>Shanghai AI Lab</span> [cite: 3]
-            </div>
-
-            <div class="paper-btn-parent">
-                <a class="paper-btn" href="#">
-                    <span class="fas fa-file-alt"></span> Paper
-                </a>
-                <a class="github-btn" href="https://github.com/syjmelody/RankE">
-                    <span class="fab fa-github"></span> Code [cite: 3]
-                </a>
-            </div>
-
-            <div class="figure">
-                <img src="./assets/fig4_qualitative.png" alt="Qualitative Comparison of Generated Images">
-            </div>
-        </div>
-
-        <section id="news">
-            <h2>News</h2>
-            <hr>
-            <div class="row">
-                <div><span class="material-icons">event</span> Project page released! </div>
-            </div>
-        </section>
-
-        <section>
-            <h2>Overview</h2>
-            <hr>
-            <p>
-                Post-training alignment for discrete text-to-image (T2I) generation has only optimized the autoregressive (AR) policy while keeping the VQ decoder frozen, implicitly assuming it generalizes equally well to any policy output[cite: 4].
-                We identify a fundamental flaw in this assumption—<strong>Latent Covariate Shift</strong>: the decoder, trained solely on deterministic ground-truth tokens, degrades on the distributionally shifted tokens from stochastic policy sampling[cite: 5].
-            </p>
-            <blockquote>
-                <p>
-                    To close this gap, we introduce RankE, the first end-to-end post-training framework purpose-built for discrete T2I models[cite: 6].
-                </p>
-            </blockquote>
-            <p>
-                Casting the problem as Generalized Expectation-Maximization, RankE alternates between a <em>Latent Ranking</em> step that refines the AR policy via group-relative preference optimization and a <em>Pixel Ranking</em> step that adapts the decoder through a composite objective of Reward-Aware Ranking GAN loss and Perception Consistency Distillation[cite: 7]. 
-                On LlamaGen-XL (775M), RankE achieves an FID of 15.21 and a CLIP score of 33.76 on MS-COCO 30K, outperforming frozen-decoder baselines and establishing a new Pareto front across fidelity, alignment, and compositional reasoning[cite: 9].
-            </p>
-        </section>
-
-        <section>
-            <h2>Framework</h2>
-            <hr>
-            <p>
-                After pre-training the VQ tokenizer, existing works only optimize the AR generator with the sampled latent rollouts by the RL ranking loss (policy gradients) with the T2I rewards while freezing the decoder, which will cause the Latent Covariate Shift between the generator and the decoder[cite: 82].
-            </p>
-            <div class="figure">
-                <img src="./assets/fig2_framework.png" alt="Comparison of existing AR post-training and RankE framework">
-            </div>
-            <p>
-                RankE applies an alternative training pipeline to co-evolve both the generator and the decoder by RL objectives with the T2I rewards (for the generator & decoder) and pixel rewards (for the decoder)[cite: 83]. By unlocking the decoder, this joint optimization directly mitigates this shift, ensuring that the latent representations remain firmly grounded in high-fidelity visual outputs[cite: 84].
-            </p>
-        </section>
-
-        <section>
-            <h2>Results</h2>
-            <hr>
-            <h3>Latent Covariate Shift & Pareto Front</h3>
-            <p>
-                We measure latent covariate shift by the KL divergence between each model's token distribution and the ground-truth VQ token distribution[cite: 46]. Standard RL further increases the divergence by 21% over SFT, whereas RankE keeps it near the SFT level via decoder co-evolution[cite: 47]. Furthermore, standard RL yields small CLIP improvements with early saturation and non-improving FID, while RankE achieves Pareto improvement by increasing CLIP and decreasing FID[cite: 49].
-            </p>
-            <div class="figure">
-                <img src="./assets/fig1_pareto.png" alt="Quantifying latent covariate shift and the CLIP-FID Pareto front">
-            </div>
-
-            <h3>Qualitative Comparisons</h3>
-            <p>
-                RankE yields precise attributes and fine-grained details corresponding to the text prompts when compared to the base model[cite: 255]. While the standard RL method (GRPO) often introduces visual artifacts, RankE significantly reduces these artifacts and maintains superior image quality, demonstrating the effectiveness of adapting the decoder to policy-sampled latents[cite: 256].
-            </p>
-            <div class="figure">
-                <img src="./assets/fig4_visuals.png" alt="Visualization of T2I generation">
-            </div>
-        </section>
-
-        <section id="bibtex">
-            <h2>Citation</h2>
-            <hr>
-            <pre>
-@inproceedings{jian2026ranke,
-  title={RankE: End-to-End Discrete Text-to-Image Post-Training via Rank-Consistent Alignment},
-  author={Jian, Siyong and Li, Siyuan and Zhang, Luyuan and Wang, Zedong and Jin, Xin and Li, Ying and Tan, Cheng and Wang, Huan},
-  booktitle={arXiv},
-  year={2026}
-}
-            </pre>
-        </section>
+    <div class="authors">
+      <a href="#">Siyong Jian</a><sup>1*</sup>,
+      <a href="#">Siyuan Li</a><sup>1,2*</sup>,
+      <a href="#">Luyuan Zhang</a><sup>3*</sup>,
+      <a href="#">Zedong Wang</a><sup>4</sup>,
+      <a href="#">Xin Jin</a><sup>1</sup>,
+      <a href="#">Ying Li</a><sup>1</sup>,
+      <a href="#">Cheng Tan</a><sup>5†</sup>,
+      <a href="#">Huan Wang</a><sup>1†</sup>
     </div>
+
+    <div class="affil">
+      <sup>1</sup>Westlake University &nbsp; &nbsp;
+      <sup>2</sup>Zhejiang University &nbsp; &nbsp;
+      <sup>3</sup>Tsinghua University<br>
+      <sup>4</sup>HKUST &nbsp; &nbsp;
+      <sup>5</sup>Shanghai AI Lab
+    </div>
+    <div class="note">*Equal contribution &nbsp;·&nbsp; †Corresponding author</div>
+
+    <div class="btn-row">
+      <a class="btn" href="http://arxiv.org/abs/2605.21195" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Paper
+      </a>
+      <a class="btn" href="https://github.com/syjmelody/RankE" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2.16c-3.2.69-3.88-1.36-3.88-1.36-.53-1.35-1.3-1.71-1.3-1.71-1.06-.72.08-.7.08-.7 1.17.08 1.78 1.2 1.78 1.2 1.04 1.79 2.73 1.27 3.4.97.1-.75.41-1.27.74-1.56-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.09 0 4.42-2.7 5.4-5.27 5.69.42.36.79 1.07.79 2.16v3.2c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
+        Code
+      </a>
+      <a class="btn" href="#bibtex">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v16M18 4v16M6 9h12M6 15h12"/></svg>
+        BibTeX
+      </a>
+    </div>
+  </header>
+
+  <!-- =================== TEASER =================== -->
+  <div class="teaser">
+    <img src="assets/teaser1_intro.png" alt="Comparison between existing AR post-training (frozen decoder) and the RankE framework (co-evolved decoder)">
+    <div class="teaser-caption">
+      <b>Existing AR post-training</b> freezes the VQ decoder and optimizes only the AR policy with T2I rewards — inducing
+      <em>Latent Covariate Shift</em>. <b>RankE</b> co-evolves both modules with complementary T2I and pixel rewards,
+      closing the shift and breaking the fidelity–alignment trade-off.
+    </div>
+  </div>
+
+  <main class="container">
+
+    <!-- =================== ABSTRACT =================== -->
+    <section id="abstract">
+      <h2>Abstract</h2>
+      <hr>
+
+      <p>
+        Discrete autoregressive (AR) text-to-image (T2I) models pair a VQ tokenizer with an AR policy, and current
+        post-training pipelines optimize <em>only</em> the policy while keeping the VQ decoder frozen. We show that this
+        policy-only optimization induces <strong>Latent Covariate Shift</strong>: as the policy evolves under reward
+        pressure, the token distribution diverges from the ground-truth distribution on which the decoder was trained,
+        so reward scores improve while decoded image quality degrades.
+      </p>
+
+      <p>
+        To address this mismatch, we propose <strong>RankE</strong> — the first end-to-end post-training framework for
+        discrete T2I generation. Rather than optimizing the policy against a fixed decoder, RankE co-evolves both
+        components through alternating optimization: each module maximizes a ranking-based alignment objective while
+        being regularized by a stability-preserving anchor suited to its parameter space. On LlamaGen-XL (775M),
+        standard RL improves CLIP but degrades FID; RankE improves both simultaneously, reaching FID 15.21 and CLIP
+        33.76 on MS-COCO 30K, and consistent gains hold on Janus-Pro-1B and under the HPSv2 reward.
+      </p>
+    </section>
+
+    <!-- =================== PROBLEM =================== -->
+    <section id="problem">
+      <h2>The Problem: Latent Covariate Shift</h2>
+      <hr>
+
+      <p>
+        During tokenizer pre-training, the VQ decoder is trained <em>exclusively</em> on deterministic ground-truth
+        codes $z_{\mathrm{gt}} = \mathrm{Quantize}(E(x))$, which occupy a restricted, low-variance region of the latent
+        space. At inference, the same decoder receives tokens sampled from the AR policy,
+        $\hat{z} \sim \pi_\theta(\cdot \mid y)$, whose distribution progressively diverges from this regime as the
+        policy evolves under reward pressure.
+      </p>
+
+      <p>
+        This divergence produces a fidelity–alignment trade-off that policy-side tuning alone cannot resolve.
+        GRPO applied to LlamaGen-XL improves CLIP yet <em>degrades FID</em> across checkpoints, and the KL divergence
+        against ground-truth token statistics confirms that standard RL substantially widens the distributional gap
+        relative to SFT.
+      </p>
+
+      <div class="figure">
+        <img src="assets/combined_bar_pareto.png" alt="Latent Covariate Shift quantification and CLIP-FID Pareto front">
+        <div class="cap">
+          <b>Left:</b> KL divergence between each model's token distribution and the ground-truth VQ token distribution.
+          Standard RL increases the divergence by ~21% over SFT, whereas RankE keeps it near the SFT level via decoder
+          co-evolution. <b>Right:</b> Standard RL yields small CLIP improvements with non-improving FID; RankE attains a
+          true Pareto improvement, increasing CLIP <em>while</em> decreasing FID.
+        </div>
+      </div>
+
+      <p>
+        Unlike exposure bias, which concerns the input context of the generator, Latent Covariate Shift targets the
+        input distribution of the decoder — a mismatch that no amount of policy-level tuning can resolve.
+      </p>
+    </section>
+
+    <!-- =================== FRAMEWORK =================== -->
+    <section id="framework">
+      <h2>The RankE Framework</h2>
+      <hr>
+
+      <p>
+        RankE jointly evolves the policy and the decoder without differentiating through the discrete bottleneck.
+        The name reflects two ranking-based mechanisms at complementary granularities: a <em>token-level</em> ranking
+        objective drives the policy update, and a <em>pixel-level</em> ranking objective drives the decoder update.
+        We cast this as a Generalized EM procedure with an alternating schedule.
+      </p>
+
+      <div class="figure">
+        <img src="assets/fig_chap3_method.png" alt="RankE two-stage co-evolution framework">
+        <div class="cap">
+          <b>Stage 1 — Latent Ranking (Policy):</b> with the decoder fixed, the AR generator is updated via group-relative
+          preference optimization with EMA-KL regularization.
+          <b>Stage 2 — Pixel Ranking (Decoder):</b> with the policy fixed, the VQ decoder is adapted on policy-sampled
+          latents through a composite objective: Rank-GAN (reward-weighted adversarial loss) + reward back-propagation
+          + ground-truth reconstruction + EMA consistency distillation.
+        </div>
+      </div>
+
+      <h3>A unified two-stage objective</h3>
+      <p>
+        Although the updates live on incompatible parameter spaces — discrete tokens for the policy $\pi_\theta$ and
+        continuous pixels for the decoder $D_\phi$ — they share a common structure:
+      </p>
+
+      <div class="eqn">
+        $$
+        \max_{\Psi \in \{\theta,\, \phi\}} \;\;
+        \mathcal{J}(\Psi) \;=\;
+        \underbrace{\mathbb{E}\!\left[\,\mathcal{A}_{\Psi}\,\right]}_{\text{ranking-based alignment}}
+        \;-\;
+        \underbrace{\lambda\,\Omega(\Psi)}_{\text{stability-preserving regularization}}
+        $$
+      </div>
+
+      <p>
+        Crucially, $\mathcal{A}_\Psi$ is implemented through <em>relative ranking</em> rather than absolute reward
+        magnitude: at every step we draw $G$ rollouts from the same prompt, score them with $r$, and update $\Psi$
+        toward higher-ranked samples. The two stages run alternately within each round and across $K$ rounds — reward
+        information crosses the discrete bottleneck through the alternation rather than through any single gradient path.
+      </p>
+
+      <h3>Stage 1 — Token-level ranking via GRPO</h3>
+      <p>
+        With the decoder fixed, the policy is updated using Group Relative Policy Optimization. For each prompt,
+        $G$ rollouts are drawn, decoded, scored under $r$, and converted into group-normalized advantages
+        $A_i = (r_i - \mu_r) / \sigma_r$. The clipped-advantage loss is the token-level ranking term $\mathcal{A}_\theta$,
+        and the KL against an EMA reference serves as the stability anchor $\Omega_\theta$.
+      </p>
+
+      <h3>Stage 2 — Pixel-level ranking via Rank-GAN</h3>
+      <p>
+        With the policy fixed, the decoder is allowed to track its evolving token distribution. The same $G$ rollouts
+        that were just ranked in <em>token</em> space are now re-ranked in <em>pixel</em> space. Mirroring Stage&nbsp;1,
+        the decoder loss decomposes into an alignment block (Rank-GAN + differentiable reward) and a manifold-anchor
+        block (ground-truth reconstruction + EMA-consistency distillation):
+      </p>
+
+      <div class="eqn">
+        $$
+        \mathcal{L}_{D}(\phi) =
+        \underbrace{\lambda_d \mathcal{L}_{\mathrm{reward}} + \lambda_g \mathcal{L}_{\mathrm{Rank\text{-}GAN}}}_{\mathcal{A}_\phi: \text{ pixel-level ranking}}
+        \;+\;
+        \underbrace{\lambda_r \mathcal{L}_{\mathrm{recon}} + \lambda_c \mathcal{L}_{\mathrm{consist}}}_{\Omega_\phi: \text{ manifold anchor}}
+        $$
+      </div>
+
+      <p>
+        <em>Rank-GAN</em> is the key innovation in the decoder: it preserves the expected gradient magnitude of a
+        vanilla GAN while concentrating updates on policy-preferred samples via reward-derived weights
+        $w(\hat{z}_i) \propto \exp(r_i / \tau)$. Replacing Rank-GAN with a uniform GAN drops both CLIP and FID,
+        confirming that reward weighting is the active ingredient.
+      </p>
+    </section>
+
+    <!-- =================== RESULTS =================== -->
+    <section id="results">
+      <h2>Results</h2>
+      <hr>
+
+      <h3>Quantitative — CLIP-based optimization</h3>
+      <p class="table-caption">
+        Standard RL improves CLIP but degrades FID; RankE co-evolves the decoder, achieving both higher CLIP and lower
+        FID simultaneously. <span class="up">Green</span> = gain over Std. RL.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Backbone</th>
+              <th>Method (Reward)</th>
+              <th class="center">Decoder</th>
+              <th class="center">CLIP ↑</th>
+              <th class="center">FID ↓</th>
+              <th class="center">GenEval ↑</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="divider"><td colspan="6">LlamaGen-XL · 775M</td></tr>
+            <tr>
+              <td rowspan="4">LlamaGen-XL</td>
+              <td>Base</td>
+              <td class="center">Frozen</td>
+              <td class="center">31.54</td>
+              <td class="center">15.24</td>
+              <td class="center">0.309</td>
+            </tr>
+            <tr>
+              <td>SFT</td>
+              <td class="center">Frozen</td>
+              <td class="center">31.86</td>
+              <td class="center">16.58</td>
+              <td class="center">0.374</td>
+            </tr>
+            <tr>
+              <td>Std. RL (CLIP)</td>
+              <td class="center">Frozen</td>
+              <td class="center">32.45</td>
+              <td class="center">17.76</td>
+              <td class="center">0.417</td>
+            </tr>
+            <tr class="ours">
+              <td><b>RankE (CLIP)</b></td>
+              <td class="center"><b>Co-Evol</b></td>
+              <td class="center"><b>33.76</b> <span class="up">↑1.31</span></td>
+              <td class="center"><b>15.21</b> <span class="down">↓2.55</span></td>
+              <td class="center"><b>0.425</b> <span class="up">↑.008</span></td>
+            </tr>
+
+            <tr class="divider"><td colspan="6">Janus-Pro · 1B</td></tr>
+            <tr>
+              <td rowspan="4">Janus-Pro</td>
+              <td>Base</td>
+              <td class="center">Frozen</td>
+              <td class="center">33.20</td>
+              <td class="center">18.95</td>
+              <td class="center">0.740</td>
+            </tr>
+            <tr>
+              <td>SFT</td>
+              <td class="center">Frozen</td>
+              <td class="center">33.31</td>
+              <td class="center">26.73</td>
+              <td class="center">0.739</td>
+            </tr>
+            <tr>
+              <td>Std. RL (CLIP)</td>
+              <td class="center">Frozen</td>
+              <td class="center">33.60</td>
+              <td class="center">25.59</td>
+              <td class="center">0.746</td>
+            </tr>
+            <tr class="ours">
+              <td><b>RankE (CLIP)</b></td>
+              <td class="center"><b>Co-Evol</b></td>
+              <td class="center"><b>33.86</b> <span class="up">↑0.26</span></td>
+              <td class="center"><b>25.19</b> <span class="down">↓0.40</span></td>
+              <td class="center"><b>0.750</b> <span class="up">↑.004</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Quantitative — HPSv2-based optimization</h3>
+      <p class="table-caption">
+        Gains generalize to non-differentiable rewards: under HPSv2, RankE improves preference alignment in pixel space
+        while preserving compositional generalization on GenEval.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th class="center">Decoder</th>
+              <th class="center">HPSv2 Photo</th>
+              <th class="center">Concept</th>
+              <th class="center">Anime</th>
+              <th class="center">Avg ↑</th>
+              <th class="center">GenEval ↑</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Base</td><td class="center">Frozen</td><td class="center">0.2364</td><td class="center">0.2107</td><td class="center">0.2183</td><td class="center">0.2196</td><td class="center">0.309</td></tr>
+            <tr><td>SFT</td><td class="center">Frozen</td><td class="center">0.2281</td><td class="center">0.2202</td><td class="center">0.2222</td><td class="center">0.2221</td><td class="center">0.374</td></tr>
+            <tr><td>Std. RL (HPSv2)</td><td class="center">Frozen</td><td class="center">0.2466</td><td class="center">0.2435</td><td class="center">0.2436</td><td class="center">0.2451</td><td class="center">0.418</td></tr>
+            <tr class="ours">
+              <td><b>RankE (HPSv2)</b></td>
+              <td class="center"><b>Co-Evol</b></td>
+              <td class="center"><b>0.2492</b></td>
+              <td class="center"><b>0.2479</b></td>
+              <td class="center"><b>0.2453</b></td>
+              <td class="center"><b>0.2531</b></td>
+              <td class="center"><b>0.423</b></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Training dynamics</h3>
+      <p>
+        RankE monotonically improves both metrics while standard RL degrades FID as training progresses.
+      </p>
+
+      <div class="figure">
+        <img src="assets/llamagen_comparison.png" alt="Training dynamics on LlamaGen-XL — CLIP, FID, HPSv2">
+        <div class="cap">
+          Training dynamics on LlamaGen-XL. <b>(a)</b> CLIP score, <b>(b)</b> FID, <b>(c)</b> HPSv2 score across training
+          steps. RankE consistently outperforms standard GRPO and, unlike GRPO, monotonically <em>improves</em> FID
+          throughout training.
+        </div>
+      </div>
+    </section>
+
+    <!-- =================== QUALITATIVE =================== -->
+    <section id="qualitative">
+      <h2>Qualitative Comparisons</h2>
+      <hr>
+
+      <p>
+        Across matched prompts, the base model frequently misses prompt attributes (color, count, spatial relations);
+        standard RL improves adherence at the cost of <em>visible artifacts</em> — a direct consequence of the frozen
+        decoder processing latents drawn from a distribution it was never trained on. RankE produces images with both
+        faithful attributes <em>and</em> high perceptual quality.
+      </p>
+
+      <div class="figure">
+        <img src="assets/exp_result_visualize.png" alt="Qualitative comparison: Base vs RL (GRPO) vs RankE">
+        <div class="cap">
+          <b>Same prompt, three decoders.</b> RankE yields precise attributes and fine-grained details corresponding to
+          the text prompts. Standard RL (GRPO) often introduces visual artifacts, while RankE significantly reduces
+          them — demonstrating that adapting the decoder to policy-sampled latents is what turns latent-space alignment
+          into pixel-space fidelity.
+        </div>
+      </div>
+    </section>
+
+    <!-- =================== BIBTEX =================== -->
+    <section id="bibtex">
+      <h2>Citation</h2>
+      <hr>
+
+      <div class="bibtex">
+        <button class="copy-btn" onclick="copyBib(this)">Copy</button>
+<pre id="bib-text">@article{Jian2026RankE,
+  title={RankE: End-to-End Post-Training for Discrete Text-to-Image Generation with Decoder Co-Evolution},
+  author={Jian, Siyong and Li, Siyuan Glen and Zhang, Luyuan and Wang, Zedong and Jin, Xin and Li, Ying and Tan, Cheng and Wang, Huan},
+  journal={arXiv preprint arXiv:2605.21195},
+  year={2026}
+}</pre>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>
+      Project page for <em>RankE</em>.
+      &nbsp;·&nbsp;
+      <a href="https://github.com/syjmelody/RankE" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </footer>
+
+  <script>
+    function copyBib(btn) {
+      const text = document.getElementById('bib-text').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const old = btn.textContent;
+        btn.textContent = 'Copied ✓';
+        setTimeout(() => { btn.textContent = old; }, 1600);
+      }).catch(() => {
+        btn.textContent = 'Press Ctrl+C';
+      });
+    }
+  </script>
+
 </body>
 </html>
