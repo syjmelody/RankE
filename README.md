@@ -1,94 +1,91 @@
+<div align="center">
+
 # RankE
 
-This repository contains the cleaned open-source release of the core **RankE post-training pipelines** built on top of:
+**End-to-End Post-Training for Discrete Text-to-Image Generation with Decoder Co-Evolution**
 
-- **LlamaGen**
-- **Janus-Pro**
+<a href="https://arxiv.org/abs/2605.21195"><img src="https://img.shields.io/badge/arXiv-2605.21195-b31b1b" alt="arXiv"></a>
+<a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-f5de53" alt="License"></a>
 
-The release focuses on the code required to:
+</div>
 
-- start from an existing **base** or **SFT** checkpoint,
-- run **post-training**,
-- generate samples for **COCO / GenEval / HPSv2**,
-- run the corresponding **evaluation** pipelines.
+<p align="center">
+  <img src="assets/teaser.png" width="100%" alt="RankE teaser">
+</p>
 
-> This repository intentionally keeps the core training, sampling, and evaluation code needed for the paper workflow.
-> Large datasets, checkpoints, logs, analysis notebooks, and older experimental branches are excluded.
+## Overview
 
----
+**RankE** is an end-to-end post-training framework for **discrete autoregressive text-to-image generation**.  
+Instead of optimizing only the generator while keeping the decoder frozen, RankE introduces **decoder co-evolution** so that the generator and decoder can adapt together during post-training.
 
-## Repository layout
+Key ideas of RankE include:
+
+- **End-to-end post-training** for discrete text-to-image models.
+- **Decoder co-evolution**, rather than a frozen decoder throughout RL/post-training.
+- A **two-stage training design** that combines text-to-image rewards and pixel-level/discriminator-based supervision.
+- Improved support for downstream evaluation on **COCO**, **GenEval**, and **HPSv2**.
+
+For the paper, see: [**RankE: End-to-End Post-Training for Discrete Text-to-Image Generation with Decoder Co-Evolution**](https://arxiv.org/abs/2605.21195).
+
+## Highlights
+
+- Cleaned public release of the **RankE post-training pipeline**.
+- Training, sampling, and evaluation entry points for the paper workflow.
+- Config-driven local path management via `configs/config.env`.
+- Documentation for end-to-end usage and script references in `docs/`.
+
+## Repository Structure
 
 ```text
 RankE/
-├── autoregressive/              # Core LlamaGen-side model, training, and sampling code
-├── tokenizer/                   # Tokenizer, VQ, and loss modules used by LlamaGen-side code
-├── language/                    # Text encoding utilities (T5)
+├── autoregressive/              # LlamaGen-side model, training, and sampling code
+├── tokenizer/                   # Tokenizer, VQ, and loss modules
+├── language/                    # Text encoding utilities
 ├── dataset/                     # Training data loading utilities
-├── janus/                       # Core Janus-side model, training, and sampling code
+├── janus/                       # Janus-side model, training, and sampling code
 ├── evaluations/                 # COCO / GenEval / HPSv2 evaluation code
 ├── scripts/
-│   ├── training_llamagen/       # LlamaGen training scripts
-│   ├── sample_llamagen/         # LlamaGen sampling scripts
-│   ├── eval_llamagen/           # LlamaGen evaluation scripts
-│   ├── training_janus/          # Janus training scripts
-│   ├── sample_janus/            # Janus sampling scripts
-│   └── eval_janus/              # Janus evaluation scripts
+│   ├── training_llamagen/
+│   ├── sample_llamagen/
+│   ├── eval_llamagen/
+│   ├── training_janus/
+│   ├── sample_janus/
+│   └── eval_janus/
 ├── configs/
 │   └── config.env.example       # Local environment/path template
 ├── docs/
 │   ├── USAGE.md                 # End-to-end usage guide
-│   └── SCRIPT_REFERENCE.md      # Short reference for each public script
-├── requirements.txt             # Main dependencies
-├── requirements_janus.txt       # Additional Janus-related dependency reference
-└── OPEN_SOURCE_SCOPE.md         # Scope of this release
+│   └── SCRIPT_REFERENCE.md      # Public script reference
+├── assets/
+│   └── teaser.png               # README teaser figure
+├── requirements.txt
+├── requirements_janus.txt
+└── README.md
 ```
 
----
-
-## Included core capabilities
-
-### LlamaGen pipeline
-- RankE post-training
-- BLIP3O-based and HPDv2-based training entry points
-- COCO / GenEval / HPSv2 sampling
-- COCO / GenEval / HPSv2 evaluation
-
-### Janus pipeline
-- RankE post-training
-- BLIP3O-based and HPDv2-based training entry points
-- COCO / GenEval / HPSv2 sampling
-- COCO / GenEval / HPSv2 evaluation
-
----
-
-## Quick start
+## Quick Start
 
 ### 1. Install dependencies
 
-Use a dedicated Python or Conda environment.
+We recommend using a fresh Python or Conda environment.
 
 ```bash
 pip install -r requirements.txt
 ```
 
-If you mainly run the Janus pipeline, also review or install:
+For the Janus pipeline, also review/install:
 
 ```bash
 pip install -r requirements_janus.txt
 ```
 
-> The GenEval, HPSv2, and Janus stacks may require version-specific adjustments depending on your CUDA, PyTorch, and `transformers` setup.
-
 ### 2. Configure local paths
-
-Copy the template:
 
 ```bash
 cp configs/config.env.example configs/config.env
 ```
 
-Then edit the main variables in `configs/config.env`, such as:
+Then edit the paths in `configs/config.env`, e.g.:
 
 - `PROJECT_OUTPUT_ROOT`
 - `PRETRAINED_ROOT`
@@ -102,16 +99,13 @@ Then edit the main variables in `configs/config.env`, such as:
 - `GENEVAL_MASK2FORMER_PATH`
 - `HPSV2_MODEL_PATH`
 
-All cleaned scripts read `configs/config.env` by default.
-You can also override it temporarily:
+All public scripts read `configs/config.env` by default. You can override it with:
 
 ```bash
-export RANKE_CONFIG_ENV=/your/path/config.env
+export RANKE_CONFIG_ENV=/path/to/config.env
 ```
 
----
-
-## Public script entry points
+## Main Workflows
 
 ### LlamaGen
 
@@ -131,7 +125,7 @@ export RANKE_CONFIG_ENV=/your/path/config.env
 - `scripts/eval_llamagen/eval_hpsv2.sh`
 - `scripts/eval_llamagen/eval_hps_geneval.sh`
 
-### Janus
+### Janus-Pro
 
 **Training**
 - `scripts/training_janus/train_clip_both.sh`
@@ -149,76 +143,67 @@ export RANKE_CONFIG_ENV=/your/path/config.env
 - `scripts/eval_janus/eval_hpsv2.sh`
 - `scripts/eval_janus/eval_hps_geneval.sh`
 
----
+## Recommended Usage
 
-## Recommended workflow
-
-### LlamaGen
-1. Edit the training script.
-2. Set `SFT_SOURCE_RUN`, `SFT_SOURCE_STEP`, `SCALING_SIZE`, reward weights, and optimizer settings.
+### LlamaGen workflow
+1. Edit a training script under `scripts/training_llamagen/`.
+2. Set the source checkpoint, scaling setup, reward weights, and optimization hyperparameters.
 3. Launch training.
-4. Copy the produced `RUN_NAME` into the sampling script.
+4. Put the resulting `RUN_NAME` into the matching sampling script.
 5. Run sampling.
 6. Run evaluation.
 
-### Janus
-1. Edit the training script.
-2. Set `MODEL_TYPE="janus-pro"`, `SFT_SOURCE_RUN`, `SFT_SOURCE_STEP`, `SCALING_SIZE`, and the training hyperparameters.
+### Janus-Pro workflow
+1. Edit a training script under `scripts/training_janus/`.
+2. Set `MODEL_TYPE="janus-pro"`, source checkpoint information, scaling setup, and training hyperparameters.
 3. Launch training.
-4. Copy the produced `RUN_NAME` into the sampling script.
+4. Put the resulting `RUN_NAME` into the matching sampling script.
 5. Run sampling.
 6. Run evaluation.
 
-See also:
+For more details, see:
 
 - [`docs/USAGE.md`](docs/USAGE.md)
 - [`docs/SCRIPT_REFERENCE.md`](docs/SCRIPT_REFERENCE.md)
 
----
+## Release Scope
+
+This repository releases the **core codebase** for RankE post-training, including the public paths needed to:
+
+- start from a base or SFT checkpoint,
+- run RankE post-training,
+- generate samples for **COCO**, **GenEval**, and **HPSv2**,
+- evaluate the resulting models with the corresponding benchmarks.
+
+The current release focuses on **post-training**, **sampling**, and **evaluation**. It does **not** aim to reproduce the full pretraining or full SFT stack.
 
 ## Notes
 
-### Script style
-The current scripts still follow an experiment-oriented shell-script style. In practice, you will usually edit variables such as:
+- Scripts remain experiment-oriented; you will typically edit variables such as `RUN_NAME`, `STEPS`, `CFG_SCALE`, `CFG_LIST`, and `COMBO_ID` before launching them.
+- Outputs are written under `${PROJECT_OUTPUT_ROOT}/...` by default.
 
-- `RUN_NAME`
-- `STEPS`
-- `CFG_SCALE` / `CFG_LIST`
-- `COMBO_ID`
+## License
 
-before running them.
+This repository is a **code-only** release and is distributed under the [MIT License](LICENSE).
 
-### Scope of the codebase
-This release focuses on:
+Since this repo builds on top of upstream projects, please also check the original licenses and usage terms for any external code, checkpoints, or models you use.
 
-- starting from an existing base or SFT checkpoint,
-- running RankE post-training,
-- running downstream sampling and evaluation.
+> No model checkpoints are distributed in this repository. If you use external checkpoints, follow the corresponding upstream model license terms.
 
-It does **not** aim to provide a full pretraining or full SFT reproduction stack.
+## Citation
 
-### Output directories
-By default, scripts write outputs under:
-
-```bash
-${PROJECT_OUTPUT_ROOT}/...
+```bibtex
+@article{jian2026ranke,
+  title={RankE: End-to-End Post-Training for Discrete Text-to-Image Generation with Decoder Co-Evolution},
+  author={Jian, Siyong and Li, Siyuan and Zhang, Luyuan and Wang, Zedong and Jin, Xin and Li, Ying and Tan, Cheng and Wang, Huan},
+  journal={arXiv preprint arXiv:2605.21195},
+  year={2026}
+}
 ```
 
-including checkpoints, samples, and evaluation summaries.
+## Acknowledgements
 
----
+This release includes RankE pipelines built on top of two autoregressive generation backbones:
 
-## Licenses
-
-- LlamaGen-related code: see `LICENSE`
-- Janus-related code: see `LICENSE-CODE` and `LICENSE-MODEL`
-
-Please review the licenses of upstream code, checkpoints, and models before use.
-
----
-
-## Open-source scope
-
-See:
-
-- [`OPEN_SOURCE_SCOPE.md`](OPEN_SOURCE_SCOPE.md)
+- [**Janus-Pro**](https://github.com/deepseek-ai/janus)
+- [**LlamaGen**](https://github.com/FoundationVision/LlamaGen)
