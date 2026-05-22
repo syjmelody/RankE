@@ -1,0 +1,10 @@
+configs/config.env
+logs/
+outputs/
+wandb/
+*.out
+*.err
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
