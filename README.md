@@ -9,14 +9,10 @@
 
 </div>
 
-<p align="center">
-  <img src="assets/teaser.png" width="100%" alt="RankE teaser">
-</p>
 
 ## Overview
 
-**RankE** is an end-to-end post-training framework for **discrete autoregressive text-to-image generation**.  
-Instead of optimizing only the generator while keeping the decoder frozen, RankE introduces **decoder co-evolution** so that the generator and decoder can adapt together during post-training.
+**RankE** is an end-to-end post-training framework for **discrete autoregressive text-to-image generation**. Instead of optimizing only the generator while keeping the decoder frozen, RankE introduces **decoder co-evolution** so that the generator and decoder can adapt together during post-training.
 
 Key ideas of RankE include:
 
@@ -25,14 +21,19 @@ Key ideas of RankE include:
 - A **two-stage training design** that combines text-to-image rewards and pixel-level/discriminator-based supervision.
 - Improved support for downstream evaluation on **COCO**, **GenEval**, and **HPSv2**.
 
-For the paper, see: [**RankE: End-to-End Post-Training for Discrete Text-to-Image Generation with Decoder Co-Evolution**](https://arxiv.org/abs/2605.21195).
 
-## Highlights
+<p align="center">
+  <img src="assets/teaser.png" width="100%" alt="RankE teaser">
+</p>
+
+For the paper, see: [**arXiv**](https://arxiv.org/abs/2605.21195)
+
+<!-- ## Highlights
 
 - Cleaned public release of the **RankE post-training pipeline**.
 - Training, sampling, and evaluation entry points for the paper workflow.
 - Config-driven local path management via `configs/config.env`.
-- Documentation for end-to-end usage and script references in `docs/`.
+- Documentation for end-to-end usage and script references in `docs/`. -->
 
 ## Repository Structure
 
@@ -107,7 +108,7 @@ export RANKE_CONFIG_ENV=/path/to/config.env
 
 ## Main Workflows
 
-### LlamaGen
+### LlamaGen as example
 
 **Training**
 - `scripts/training_llamagen/train_clip_both.sh`
@@ -125,7 +126,7 @@ export RANKE_CONFIG_ENV=/path/to/config.env
 - `scripts/eval_llamagen/eval_hpsv2.sh`
 - `scripts/eval_llamagen/eval_hps_geneval.sh`
 
-### Janus-Pro
+<!-- ### Janus-Pro
 
 **Training**
 - `scripts/training_janus/train_clip_both.sh`
@@ -141,7 +142,7 @@ export RANKE_CONFIG_ENV=/path/to/config.env
 - `scripts/eval_janus/eval_coco.sh`
 - `scripts/eval_janus/eval_clip_geneval.sh`
 - `scripts/eval_janus/eval_hpsv2.sh`
-- `scripts/eval_janus/eval_hps_geneval.sh`
+- `scripts/eval_janus/eval_hps_geneval.sh` -->
 
 ## Recommended Usage
 
@@ -153,20 +154,20 @@ export RANKE_CONFIG_ENV=/path/to/config.env
 5. Run sampling.
 6. Run evaluation.
 
-### Janus-Pro workflow
+<!-- ### Janus-Pro workflow
 1. Edit a training script under `scripts/training_janus/`.
 2. Set `MODEL_TYPE="janus-pro"`, source checkpoint information, scaling setup, and training hyperparameters.
 3. Launch training.
 4. Put the resulting `RUN_NAME` into the matching sampling script.
 5. Run sampling.
-6. Run evaluation.
+6. Run evaluation. -->
 
 For more details, see:
 
 - [`docs/USAGE.md`](docs/USAGE.md)
 - [`docs/SCRIPT_REFERENCE.md`](docs/SCRIPT_REFERENCE.md)
 
-## Release Scope
+<!-- ## Release Scope
 
 This repository releases the **core codebase** for RankE post-training, including the public paths needed to:
 
@@ -175,20 +176,18 @@ This repository releases the **core codebase** for RankE post-training, includin
 - generate samples for **COCO**, **GenEval**, and **HPSv2**,
 - evaluate the resulting models with the corresponding benchmarks.
 
-The current release focuses on **post-training**, **sampling**, and **evaluation**. It does **not** aim to reproduce the full pretraining or full SFT stack.
+The current release focuses on **post-training**, **sampling**, and **evaluation**. It does **not** aim to reproduce the full pretraining or full SFT stack. -->
 
-## Notes
-
-- Scripts remain experiment-oriented; you will typically edit variables such as `RUN_NAME`, `STEPS`, `CFG_SCALE`, `CFG_LIST`, and `COMBO_ID` before launching them.
+ you will typically edit variables such as `RUN_NAME`, `STEPS`, `CFG_SCALE`, `CFG_LIST`, and `COMBO_ID` before launching them.
 - Outputs are written under `${PROJECT_OUTPUT_ROOT}/...` by default.
 
-## License
+<!-- ## License
 
 This repository is a **code-only** release and is distributed under the [MIT License](LICENSE).
 
 Since this repo builds on top of upstream projects, please also check the original licenses and usage terms for any external code, checkpoints, or models you use.
 
-> No model checkpoints are distributed in this repository. If you use external checkpoints, follow the corresponding upstream model license terms.
+> No model checkpoints are distributed in this repository. If you use external checkpoints, follow the corresponding upstream model license terms. -->
 
 ## Citation
 
